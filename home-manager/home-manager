@@ -96,6 +96,23 @@ function doInstantiate() {
         --argstr confAttr "$HOME_MANAGER_CONFIG_ATTRIBUTE"
 }
 
+function doRepl() {
+    setConfigFile
+    setHomeManagerNixPath
+    local extraArgs=()
+
+    for p in "${EXTRA_NIX_PATH[@]}"; do
+        extraArgs=("${extraArgs[@]}" "-I" "$p")
+    done
+
+    nix repl \
+         "<home-manager/home-manager/home-manager.nix>" \
+         "${extraArgs[@]}" \
+         "${PASSTHROUGH_OPTS[@]}" \
+         --argstr confPath "$HOME_MANAGER_CONFIG" \
+         --argstr confAttr "$HOME_MANAGER_CONFIG_ATTRIBUTE"
+}
+
 function doBuildAttr() {
     setConfigFile
     setHomeManagerNixPath
@@ -434,6 +451,8 @@ function doHelp() {
     echo
     echo "  instantiate  Instantiate the configuration and print the resulting derivation"
     echo
+    echo "  repl         Starts an interactive environment with the configuration in scope"
+    echo
     echo "  switch       Build and activate configuration"
     echo
     echo "  generations  List all home environment generations"
@@ -464,7 +483,7 @@ while [[ $# -gt 0 ]]; do
     opt="$1"
     shift
     case $opt in
-        build|instantiate|edit|expire-generations|generations|help|news|packages|remove-generations|switch|uninstall)
+        build|instantiate|edit|expire-generations|generations|help|news|packages|remove-generations|repl|switch|uninstall)
             COMMAND="$opt"
             ;;
         -A)
@@ -543,6 +562,9 @@ case $COMMAND in
         ;;
     remove-generations)
         doRmGenerations "${COMMAND_ARGS[@]}"
+        ;;
+    repl)
+        doRepl
         ;;
     expire-generations)
         if [[ ${#COMMAND_ARGS[@]} != 1 ]]; then

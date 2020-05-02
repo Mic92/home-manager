@@ -84,5 +84,6 @@ let
 in
   {
     inherit (env) activationPackage;
+    inherit env;
     inherit newsInfo;
   }
